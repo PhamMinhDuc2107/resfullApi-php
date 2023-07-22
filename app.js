@@ -70,17 +70,22 @@ getData(
   let totalRecords = data["totalRecords"];
   let totalPages = Math.ceil(totalRecords / limit);
   createPaginationTemplate(totalPages);
-});
-pagination.addEventListener("click", (e) => {
-  e.preventDefault();
-  let allLinks = document.querySelectorAll(".pagination a");
-  allLinks.forEach((link) => link.classList.remove("is-active"));
-  if (e.target.tagName === "A") {
-    let page = e.target.getAttribute("data-page");
-    e.target.classList.add("is-active");
-    updateDataOnPaginationClick(page);
+  let currentPageLink = document.querySelector(`[data-page="${page}"]`);
+  if (currentPageLink) {
+    currentPageLink.classList.add("is-active");
   }
+  pagination.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (e.target.tagName === "A") {
+      let allLinks = document.querySelectorAll(".pagination a");
+      allLinks.forEach((link) => link.classList.remove("is-active"));
+      let page = e.target.getAttribute("data-page");
+      e.target.classList.add("is-active");
+      updateDataOnPaginationClick(page);
+    }
+  });
 });
+
 //delete && edit
 document.body.addEventListener("click", (e) => {
   if (e.target.matches(".btn-delete")) {
