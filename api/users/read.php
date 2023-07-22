@@ -14,7 +14,7 @@
    $totalRecord = $modelUser->totalRecords();
    if($num > 0) {
       $user = [
-         'totalRecords' => $totalRecord,
+         'totalRecords' => $totalRecord['total'],
          'limit'=>$modelUser->limit,
       ];
       $user['data'] =[];

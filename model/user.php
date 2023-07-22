@@ -21,7 +21,7 @@
          return $stmt;
       }
       public function totalRecords() {
-         $query = "SELECT COUNT(*) FROM users";
+         $query = "SELECT COUNT(*) as total FROM users";
          $stmt = $this->conn->prepare($query);
          $stmt->execute();
          $result = $stmt->fetch(PDO::FETCH_ASSOC);

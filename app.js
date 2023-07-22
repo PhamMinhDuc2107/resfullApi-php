@@ -27,27 +27,59 @@ async function getData(endpoint, method, data) {
     console.log(err);
   }
 }
+//create pagination
+function createPaginationTemplate(totalPages) {
+  let template = "";
+  for (let i = 1; i <= totalPages; i++) {
+    template += `<li><a href="#" data-page="${i}">${i}</a></li>`;
+  }
+  pagination.insertAdjacentHTML("beforeend", template);
+}
 let tableContent = document.querySelector(".table-content");
+function updateDataOnPaginationClick(page) {
+  let tableContent = document.querySelector(".table-content");
+  getData(
+    `http://localhost/restfullApi-php/api/users/read.php?page=${page}&limit=${limit}`,
+    "get",
+    ""
+  ).then((data) => {
+    tableContent.innerHTML = "";
+    let userList = data["data"];
+    userList.forEach((item) => {
+      let template = `
+			 <tr>
+				<td>${item.username}</td>
+				<td>${item.password}</td>
+				<td>${item.phone}</td>
+				<td>${item.email}</td>
+				<td><div data-id=${item.id} class='btn-edit btn btn-warning'>Edit</div></td>
+				<td><div data-id=${item.id} class='btn-delete btn btn-danger'>Delete</div></td>
+			</tr>
+		`;
+      tableContent.insertAdjacentHTML("beforeend", template);
+    });
+  });
+}
+updateDataOnPaginationClick(page);
+//insert pagination
 getData(
   `http://localhost/restfullApi-php/api/users/read.php?page=${page}&limit=${limit}`,
   "get",
   ""
 ).then((data) => {
-  let userList = data["data"];
-  console.log(data);
-  userList.forEach((item) => {
-    let template = `
-				 <tr >
-						<td>${item.username}</td>
-						<td>${item.password}</td>
-						<td>${item.phone}</td>
-						<td>${item.email}</td>
-						<td><div  data-id=${item.id} class='btn-edit btn btn-warning'>Edit</div></td>
-						<td><div  data-id=${item.id} class='btn-delete btn btn-danger'>Delete</div></td>
-				 </tr>
-			`;
-    tableContent.insertAdjacentHTML("beforeend", template);
-  });
+  let totalRecords = data["totalRecords"];
+  let totalPages = Math.ceil(totalRecords / limit);
+  createPaginationTemplate(totalPages);
+});
+pagination.addEventListener("click", (e) => {
+  e.preventDefault();
+  let allLinks = document.querySelectorAll(".pagination a");
+  allLinks.forEach((link) => link.classList.remove("is-active"));
+  if (e.target.tagName === "A") {
+    let page = e.target.getAttribute("data-page");
+    e.target.classList.add("is-active");
+    updateDataOnPaginationClick(page);
+  }
 });
 //delete && edit
 document.body.addEventListener("click", (e) => {
@@ -73,7 +105,7 @@ document.body.addEventListener("click", (e) => {
     });
   }
 });
-//create
+//create && edit
 formUser = document.querySelector(".form-user");
 formUser.addEventListener("click", (e) => {
   let username = formUser.querySelector('input[name="username"]').value;
@@ -82,6 +114,7 @@ formUser.addEventListener("click", (e) => {
   let email = formUser.querySelector('input[name="email"]').value;
   if (username === "" && password === "" && phone === "" && email === "")
     return;
+  //create
   if (e.target.matches(".btn-create")) {
     const user = {
       username: `${username}`,
@@ -95,6 +128,7 @@ formUser.addEventListener("click", (e) => {
       window.location.href = "index.html";
     });
   } else if (e.target.matches(".btn-update")) {
+    //edit;
     let id = document.querySelector('input[name="id"]').value;
     const user = {
       username: `${username}`,
