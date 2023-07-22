@@ -6,14 +6,26 @@
       public $phone;
       public $email;
       public $id;
+      public $page;
+      public $limit;
       function __construct($db) {
          $this->conn = $db;
       }
       public function read() {
-         $query = "SELECT * FROM users ORDER BY id ASC ";
+         $startFrom = ($this->page - 1) * $this->limit;
+         $query = "SELECT * FROM users ORDER BY id ASC LIMIT :i, :b";
          $stmt = $this->conn->prepare($query);
+         $stmt->bindParam(":i", $startFrom, PDO::PARAM_INT);
+         $stmt->bindParam(":b", $this->limit, PDO::PARAM_INT);
          $stmt->execute();
          return $stmt;
+      }
+      public function totalRecords() {
+         $query = "SELECT COUNT(*) FROM users";
+         $stmt = $this->conn->prepare($query);
+         $stmt->execute();
+         $result = $stmt->fetch(PDO::FETCH_ASSOC);
+         return $result;
       }
       public function show($id) {
          $query = "SELECT * FROM users WHERE id=:id";

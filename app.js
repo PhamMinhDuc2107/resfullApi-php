@@ -1,4 +1,7 @@
 //function  get api
+let page = 1;
+let limit = 2;
+let pagination = document.querySelector(".pagination");
 async function getData(endpoint, method, data) {
   try {
     let response = "";
@@ -25,11 +28,15 @@ async function getData(endpoint, method, data) {
   }
 }
 let tableContent = document.querySelector(".table-content");
-getData("http://localhost/restfullApi-php/api/users/read.php", "get", "").then(
-  (data) => {
-    let userList = data["data"];
-    userList.forEach((item) => {
-      let template = `
+getData(
+  `http://localhost/restfullApi-php/api/users/read.php?page=${page}&limit=${limit}`,
+  "get",
+  ""
+).then((data) => {
+  let userList = data["data"];
+  console.log(data);
+  userList.forEach((item) => {
+    let template = `
 				 <tr >
 						<td>${item.username}</td>
 						<td>${item.password}</td>
@@ -39,10 +46,9 @@ getData("http://localhost/restfullApi-php/api/users/read.php", "get", "").then(
 						<td><div  data-id=${item.id} class='btn-delete btn btn-danger'>Delete</div></td>
 				 </tr>
 			`;
-      tableContent.insertAdjacentHTML("beforeend", template);
-    });
-  }
-);
+    tableContent.insertAdjacentHTML("beforeend", template);
+  });
+});
 //delete && edit
 document.body.addEventListener("click", (e) => {
   if (e.target.matches(".btn-delete")) {
